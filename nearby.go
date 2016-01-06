@@ -53,6 +53,9 @@ type Record struct {
 	id  string
 	lat float64
 	lon float64
+	/*
+	TO DO something something something for extra fields
+	*/
 }
 
 func (r *Record) Lat() float64 {
@@ -79,9 +82,16 @@ func NewIndex() *Index {
 
 type Index struct {
 	geoindex *geoindex.PointsIndex
+	/*
+	TO DO something something something defaults for max records and distance
+	*/
 }
 
 func (i *Index) IndexCSVFile(csv_file string, key map[string]string) (bool, error) {
+
+     /* 
+     TO DO - ensure key contains 'id', 'latitude' and 'longitude'
+     */
 
 	reader, reader_err := csv.NewDictReader(csv_file)
 
@@ -145,28 +155,25 @@ func (i *Index) IndexFeature(f *geojson.WOFFeature) (bool, error) {
 	return true, nil
 }
 
-func (i *Index) Nearby(lat float64, lon float64) []geoindex.Point {
-
-	id := "u r on first"
-	pt := &geoindex.GeoPoint{id, lat, lon}
+func (i *Index) Nearby(lat float64, lon float64, max int, dist float64) []geoindex.Point {
 
 	cb := func(p geoindex.Point) bool {
 		return true
 	}
 
-	return i.nearby(pt, cb)
+	return i.nearby(lat, lon, max, dist, cb)
 }
 
-func (i *Index) NearbyWithCallback(lat float64, lon float64, cb Callback) []geoindex.Point {
+func (i *Index) NearbyWithCallback(lat float64, lon float64, max int, dist float64, cb Callback) []geoindex.Point {
+
+	return i.nearby(lat, lon, max, dist, cb)
+}
+
+func (i *Index) nearby(lat float64, lon float64, max int, dist float64, cb Callback) []geoindex.Point {
 
 	id := "u r on first"
 	pt := &geoindex.GeoPoint{id, lat, lon}
 
-	return i.nearby(pt, cb)
-}
-
-func (i *Index) nearby(pt *geoindex.GeoPoint, cb Callback) []geoindex.Point {
-
-	points := i.geoindex.KNearest(pt, 5, geoindex.Km(5), cb)
+	points := i.geoindex.KNearest(pt, max, geoindex.Km(dist), cb)
 	return points
 }

@@ -59,7 +59,7 @@ func main() {
 
 		t1 := time.Now()
 
-		points := idx.Nearby(lat, lon)
+		points := idx.Nearby(lat, lon, 10, 1)
 		t2 := time.Since(t1)
 
 		count := len(points)

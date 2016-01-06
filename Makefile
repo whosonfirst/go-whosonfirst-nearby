@@ -13,6 +13,9 @@ deps: 	self
 	@GOPATH=$(shell pwd) go get -u "github.com/whosonfirst/go-whosonfirst-geojson"
 	@GOPATH=$(shell pwd) go get -u "github.com/hailocab/go-geoindex"
 
+bin:	self
+	@GOPATH=$(shell pwd) go build -o bin/wof-csv-index cmd/wof-index-csv.go
+
 fmt:
 	go fmt *.go
 	go fmt cmd/*.go
