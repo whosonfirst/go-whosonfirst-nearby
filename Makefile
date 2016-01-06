@@ -9,8 +9,10 @@ self:	prep
 deps: 	self
 	@GOPATH=$(shell pwd) go get -u "github.com/whosonfirst/go-whosonfirst-crawl"
 	@GOPATH=$(shell pwd) go get -u "github.com/whosonfirst/go-whosonfirst-log"
+	@GOPATH=$(shell pwd) go get -u "github.com/whosonfirst/go-whosonfirst-csv"
 	@GOPATH=$(shell pwd) go get -u "github.com/whosonfirst/go-whosonfirst-geojson"
 	@GOPATH=$(shell pwd) go get -u "github.com/hailocab/go-geoindex"
 
 fmt:
 	go fmt *.go
+	go fmt cmd/*.go
