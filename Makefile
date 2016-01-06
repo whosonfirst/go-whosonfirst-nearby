@@ -14,7 +14,7 @@ deps: 	self
 	@GOPATH=$(shell pwd) go get -u "github.com/hailocab/go-geoindex"
 
 bin:	self
-	@GOPATH=$(shell pwd) go build -o bin/wof-csv-index cmd/wof-index-csv.go
+	@GOPATH=$(shell pwd) go build -o bin/wof-nearby-csv cmd/wof-nearby-csv.go
 
 fmt:
 	go fmt *.go
