@@ -7,7 +7,7 @@ import (
        "strconv"
 )
 
-func NewRecord(f *geojson.WOFFeature) (*Record, error) {
+func NewRecordFromFeature(f *geojson.WOFFeature) (*Record, error) {
 
      id := f.Id()
 
@@ -67,16 +67,14 @@ type Index struct {
 }
 
 /*
-
 func (i *Index) IndexMetaFile(meta string) (bool, error) {
      // please write me
 }
-
 */
 
 func (i *Index) IndexFeature(f *geojson.WOFFeature) (bool, error) {
 
-     record, err := NewRecord(f)
+     record, err := NewRecordFromFeature(f)
 
      if err != nil {
      	return false, err
@@ -84,4 +82,17 @@ func (i *Index) IndexFeature(f *geojson.WOFFeature) (bool, error) {
 
      i.geoindex.Add(record)
      return true, nil
+}
+
+func (i *Index) Nearby(lat float64, lon float64) []geoindex.Point {
+
+     id := "u r on first"
+
+     pt := &geoindex.GeoPoint{id, lat, lon}
+
+     points := i.geoindex.KNearest(pt, 5, geoindex.Km(5), func(p geoindex.Point) bool {
+        return true
+     })
+
+     return points
 }
