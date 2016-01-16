@@ -4,7 +4,9 @@ import (
        "encoding/json"
        "flag"
        "fmt"
-	"github.com/whosonfirst/go-whosonfirst-nearby"
+       "github.com/whosonfirst/go-whosonfirst-nearby"
+       "github.com/whosonfirst/go-whosonfirst-log"
+       "io"
        "net/http"
        "os"
        "strconv"
@@ -16,8 +18,9 @@ func main() {
 	var lat = flag.String("latitude", "latitude", "")
 	var lon = flag.String("longitude", "longitude", "")
 	var host = flag.String("host", "localhost", "The hostname to listen for requests on")
-	var port = flag.Int("port", 8080, "The port number to listen for requests on")
+	var port = flag.Int("port", 1414, "The port number to listen for requests on")
 	var cors = flag.Bool("cors", false, "Enable CORS headers")
+	var loglevel = flag.String("loglevel", "info", "Log level for reporting")
 
 	flag.Parse()
 
@@ -25,6 +28,11 @@ func main() {
 	key["id"] = *id
 	key["latitude"] = *lat
 	key["longitude"] = *lon
+
+	l_writer := io.MultiWriter(os.Stdout)
+
+	logger := log.NewWOFLogger("[wof-nearby-server] ")
+	logger.AddLogger(l_writer, *loglevel)
 
 	idx := nearby.NewIndex()
 
@@ -97,12 +105,13 @@ func main() {
 	}
 
 	endpoint := fmt.Sprintf("%s:%d", *host, *port)
+	logger.Info("wof-nearby-server listening on %s", endpoint)
 
 	http.HandleFunc("/", handler)
 	err := http.ListenAndServe(endpoint, nil)
 
 	if err != nil {
-	       // logger.Error("failed to start server, because %v", err)
+	       logger.Error("failed to start server, because %v", err)
 	       os.Exit(1)
 	}
 

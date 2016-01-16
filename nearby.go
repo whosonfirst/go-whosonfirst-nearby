@@ -12,6 +12,30 @@ import (
 
 type Callback func(p geoindex.Point) bool
 
+func NewResultsFromPoint (pt geoindex.Point) *Result {
+     
+     str_id := pt.Id()
+     id, _ := strconv.Atoi(str_id)
+
+     r := Result{
+       Id: id,
+       Latitude: pt.Lat(),
+       Longitude: pt.Lon(),
+     }
+
+     return &r
+}
+
+type Result struct {
+     Id	    	int
+     Latitude	float64
+     Longitude	float64
+}
+
+func (r *Result) Stringer() string {
+	return fmt.Sprintf("%d %06f %06f", r.Id, r.Latitude, r.Longitude)
+}
+
 func NewRecordFromFeature(f *geojson.WOFFeature) (*Record, error) {
 
 	id := f.Id()
@@ -51,19 +75,16 @@ func NewRecord(id string, lat float64, lon float64) (*Record, error) {
 
 type Record struct {
 	id  string
-	lat float64
-	lon float64
-	/*
-	TO DO something something something for extra fields
-	*/
+	latitude float64
+	longitude float64
 }
 
 func (r *Record) Lat() float64 {
-	return r.lat
+	return r.latitude
 }
 
 func (r *Record) Lon() float64 {
-	return r.lon
+	return r.longitude
 }
 
 func (r *Record) Id() string {
@@ -82,9 +103,6 @@ func NewIndex() *Index {
 
 type Index struct {
 	geoindex *geoindex.PointsIndex
-	/*
-	TO DO something something something defaults for max records and distance
-	*/
 }
 
 func (i *Index) IndexCSVFile(csv_file string, key map[string]string) (bool, error) {
@@ -113,18 +131,21 @@ func (i *Index) IndexCSVFile(csv_file string, key map[string]string) (bool, erro
 		id, ok := row[key["id"]]
 
 		if !ok {
+		        // fmt.Println("no ID")
 			continue
 		}
 
 		str_lat, ok := row[key["latitude"]]
 
 		if !ok {
+		        // fmt.Println("no latitude")
 			continue
 		}
 
 		str_lon, ok := row[key["longitude"]]
 
 		if !ok {
+		        // fmt.Println("no longitude")
 			continue
 		}
 
@@ -155,7 +176,7 @@ func (i *Index) IndexFeature(f *geojson.WOFFeature) (bool, error) {
 	return true, nil
 }
 
-func (i *Index) Nearby(lat float64, lon float64, max int, dist float64) []geoindex.Point {
+func (i *Index) Nearby(lat float64, lon float64, max int, dist float64) []*Result {
 
 	cb := func(p geoindex.Point) bool {
 		return true
@@ -164,16 +185,23 @@ func (i *Index) Nearby(lat float64, lon float64, max int, dist float64) []geoind
 	return i.nearby(lat, lon, max, dist, cb)
 }
 
-func (i *Index) NearbyWithCallback(lat float64, lon float64, max int, dist float64, cb Callback) []geoindex.Point {
+func (i *Index) NearbyWithCallback(lat float64, lon float64, max int, dist float64, cb Callback) []*Result {
 
 	return i.nearby(lat, lon, max, dist, cb)
 }
 
-func (i *Index) nearby(lat float64, lon float64, max int, dist float64, cb Callback) []geoindex.Point {
+func (i *Index) nearby(lat float64, lon float64, max int, dist float64, cb Callback) []*Result {
 
 	id := "u r on first"
 	pt := &geoindex.GeoPoint{id, lat, lon}
 
 	points := i.geoindex.KNearest(pt, max, geoindex.Km(dist), cb)
-	return points
+	results := make([]*Result, 0)
+
+	for _, pt := range points {
+	    r := NewResultsFromPoint(pt)
+	    results = append(results, r)
+	}
+
+	return results
 }
