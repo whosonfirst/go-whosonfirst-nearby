@@ -15,6 +15,7 @@ deps: 	self
 
 bin:	self
 	@GOPATH=$(shell pwd) go build -o bin/wof-nearby-csv cmd/wof-nearby-csv.go
+	@GOPATH=$(shell pwd) go build -o bin/wof-nearby-server cmd/wof-nearby-server.go
 
 fmt:
 	go fmt *.go
