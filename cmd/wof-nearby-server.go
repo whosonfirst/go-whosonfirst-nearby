@@ -1,15 +1,15 @@
 package main
 
 import (
-       "encoding/json"
-       "flag"
-       "fmt"
-       "github.com/whosonfirst/go-whosonfirst-nearby"
-       "github.com/whosonfirst/go-whosonfirst-log"
-       "io"
-       "net/http"
-       "os"
-       "strconv"
+	"encoding/json"
+	"flag"
+	"fmt"
+	"github.com/whosonfirst/go-whosonfirst-log"
+	"github.com/whosonfirst/go-whosonfirst-nearby"
+	"io"
+	"net/http"
+	"os"
+	"strconv"
 )
 
 func main() {
@@ -111,8 +111,8 @@ func main() {
 	err := http.ListenAndServe(endpoint, nil)
 
 	if err != nil {
-	       logger.Error("failed to start server, because %v", err)
-	       os.Exit(1)
+		logger.Error("failed to start server, because %v", err)
+		os.Exit(1)
 	}
 
 	os.Exit(0)

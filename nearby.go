@@ -12,24 +12,24 @@ import (
 
 type Callback func(p geoindex.Point) bool
 
-func NewResultsFromPoint (pt geoindex.Point) *Result {
-     
-     str_id := pt.Id()
-     id, _ := strconv.Atoi(str_id)
+func NewResultsFromPoint(pt geoindex.Point) *Result {
 
-     r := Result{
-       Id: id,
-       Latitude: pt.Lat(),
-       Longitude: pt.Lon(),
-     }
+	str_id := pt.Id()
+	id, _ := strconv.Atoi(str_id) // please make an int64
 
-     return &r
+	r := Result{
+		Id:        id,
+		Latitude:  pt.Lat(),
+		Longitude: pt.Lon(),
+	}
+
+	return &r
 }
 
 type Result struct {
-     Id	    	int
-     Latitude	float64
-     Longitude	float64
+	Id        int // int64
+	Latitude  float64
+	Longitude float64
 }
 
 func (r *Result) Stringer() string {
@@ -74,8 +74,8 @@ func NewRecord(id string, lat float64, lon float64) (*Record, error) {
 }
 
 type Record struct {
-	id  string
-	latitude float64
+	id        string
+	latitude  float64
 	longitude float64
 }
 
@@ -107,9 +107,17 @@ type Index struct {
 
 func (i *Index) IndexCSVFile(csv_file string, key map[string]string) (bool, error) {
 
-     /* 
-     TO DO - ensure key contains 'id', 'latitude' and 'longitude'
-     */
+	required := []string{"id", "latitude", "longitude"}
+
+	for _, k := range required {
+
+		_, ok := key[k]
+
+		if !ok {
+			msg := fmt.Sprintf("Missing %s key", k)
+			return false, errors.New(msg)
+		}
+	}
 
 	reader, reader_err := csv.NewDictReader(csv_file)
 
@@ -131,21 +139,21 @@ func (i *Index) IndexCSVFile(csv_file string, key map[string]string) (bool, erro
 		id, ok := row[key["id"]]
 
 		if !ok {
-		        // fmt.Println("no ID")
+			// fmt.Println("no ID")
 			continue
 		}
 
 		str_lat, ok := row[key["latitude"]]
 
 		if !ok {
-		        // fmt.Println("no latitude")
+			// fmt.Println("no latitude")
 			continue
 		}
 
 		str_lon, ok := row[key["longitude"]]
 
 		if !ok {
-		        // fmt.Println("no longitude")
+			// fmt.Println("no longitude")
 			continue
 		}
 
@@ -199,8 +207,8 @@ func (i *Index) nearby(lat float64, lon float64, max int, dist float64, cb Callb
 	results := make([]*Result, 0)
 
 	for _, pt := range points {
-	    r := NewResultsFromPoint(pt)
-	    results = append(results, r)
+		r := NewResultsFromPoint(pt)
+		results = append(results, r)
 	}
 
 	return results
