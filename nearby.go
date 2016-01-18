@@ -6,6 +6,7 @@ import (
 	"github.com/hailocab/go-geoindex"
 	"github.com/whosonfirst/go-whosonfirst-csv"
 	"github.com/whosonfirst/go-whosonfirst-geojson"
+	"github.com/whosonfirst/go-whosonfirst-log"
 	"io"
 	"strconv"
 )
@@ -95,14 +96,21 @@ func (r *Record) Stringer() string {
 	return fmt.Sprintf("%s %06f %06f", r.Id(), r.Lat(), r.Lon())
 }
 
-func NewIndex() *Index {
+func NewIndex(logger log.WOFLog) *Index {
 
 	geoindex := geoindex.NewPointsIndex(geoindex.Km(0.5))
-	return &Index{geoindex}
+
+	idx := Index{
+		geoindex: geoindex,
+		logger:   logger,
+	}
+
+	return &idx
 }
 
 type Index struct {
 	geoindex *geoindex.PointsIndex
+	logger   log.WOFLog // interface
 }
 
 func (i *Index) IndexCSVFile(csv_file string, key map[string]string) (bool, error) {

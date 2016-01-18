@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"github.com/whosonfirst/go-whosonfirst-log"
 	"github.com/whosonfirst/go-whosonfirst-nearby"
 	"os"
 	"strconv"
@@ -24,7 +25,8 @@ func main() {
 	key["latitude"] = *lat
 	key["longitude"] = *lon
 
-	idx := nearby.NewIndex()
+	logger := log.SimpleWOFLogger("[wof-nearby-csv]")
+	idx := nearby.NewIndex(logger)
 
 	t1 := time.Now()
 

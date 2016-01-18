@@ -29,12 +29,26 @@ func main() {
 	key["latitude"] = *lat
 	key["longitude"] = *lon
 
-	l_writer := io.MultiWriter(os.Stdout)
+	var logger *log.WOFLogger
 
-	logger := log.NewWOFLogger("[wof-nearby-server] ")
-	logger.AddLogger(l_writer, *loglevel)
+	/*
+		Please wrap all this logic in to SimpleWOFLogger
+		See also: https://github.com/whosonfirst/go-whosonfirst-log/issues/1
+	*/
 
-	idx := nearby.NewIndex()
+	if *loglevel != "" {
+		logger = log.NewWOFLogger("[wof-nearby-server]")
+
+		stdout := io.Writer(os.Stdout)
+		stderr := io.Writer(os.Stderr)
+
+		logger.AddLogger(stdout, *loglevel)
+		logger.AddLogger(stderr, "error")
+	} else {
+		logger = log.SimpleWOFLogger("[wof-nearby-server]")
+	}
+
+	idx := nearby.NewIndex(logger)
 
 	for _, path := range flag.Args() {
 		idx.IndexCSVFile(path, key)
@@ -105,7 +119,7 @@ func main() {
 	}
 
 	endpoint := fmt.Sprintf("%s:%d", *host, *port)
-	logger.Info("wof-nearby-server listening on %s", endpoint)
+	logger.Status("wof-nearby-server listening on %s", endpoint)
 
 	http.HandleFunc("/", handler)
 	err := http.ListenAndServe(endpoint, nil)
